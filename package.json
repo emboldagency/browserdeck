@@ -1,0 +1,47 @@
+{
+  "name": "@emboldagency/browserdeck",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CLI tool to preview any URL simultaneously in Chromium, Firefox, and WebKit with synced scroll",
+  "keywords": [
+    "playwright",
+    "cross-browser",
+    "cross-engine",
+    "browser-preview",
+    "webkit",
+    "firefox",
+    "chromium",
+    "scroll-sync",
+    "visual-testing"
+  ],
+  "author": "Embold Agency",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emboldagency/browserdeck"
+  },
+  "homepage": "https://github.com/emboldagency/browserdeck#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "browserdeck": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "site/"
+  ],
+  "scripts": {
+    "serve": "npx --yes http-server site -p 8080 -c-1 --silent",
+    "sync": "node bin/cli.js",
+    "demo": "concurrently --kill-others \"npm run serve\" \"npx --yes wait-on http://localhost:8080 && node bin/cli.js http://localhost:8080\""
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "playwright": "^1.60.0"
+  }
+}

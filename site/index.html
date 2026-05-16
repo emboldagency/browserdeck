@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cross-Engine Rendering Showcase</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>Cross-Engine Rendering Showcase</h1>
+    <p class="ua-line">Detected engine: <span id="engine">...</span></p>
+    <p class="ua-line ua-string">UA: <span id="ua">...</span></p>
+    <p class="subtitle">Scroll through to spot differences between Blink, Gecko, and WebKit.</p>
+  </header>
+
+  <main>
+    <!-- 1. Backdrop filter -->
+    <section class="demo demo--backdrop">
+      <h2>1. Backdrop Filter</h2>
+      <p class="note">WebKit needs <code>-webkit-backdrop-filter</code>; older Gecko required a flag. Watch the frosted-glass card.</p>
+      <div class="backdrop-stage">
+        <div class="backdrop-card">
+          <h3>Frosted Glass</h3>
+          <p>If this looks crisp and blurred behind, the engine supports backdrop-filter natively.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Date input -->
+    <section class="demo">
+      <h2>2. Native Date Picker</h2>
+      <p class="note">Every engine renders <code>&lt;input type="date"&gt;</code> differently. Chrome has a calendar dropdown, Firefox has a custom picker, WebKit (non-Safari) often falls back to plain text.</p>
+      <label>
+        Pick a date:
+        <input type="date" />
+      </label>
+      <label>
+        Pick a color:
+        <input type="color" value="#FF66B2" />
+      </label>
+      <label>
+        Range:
+        <input type="range" min="0" max="100" value="50" />
+      </label>
+    </section>
+
+    <!-- 3. Scrollbar styling -->
+    <section class="demo demo--scrollbar">
+      <h2>3. Custom Scrollbars</h2>
+      <p class="note">WebKit uses <code>::-webkit-scrollbar</code>. Firefox uses <code>scrollbar-width</code>/<code>scrollbar-color</code>. Different syntax, different results.</p>
+      <div class="scroll-box">
+        <p>Scroll inside this box.</p>
+        <p>Notice the scrollbar styling differs per engine.</p>
+        <p>Chromium and WebKit accept ::-webkit-scrollbar.</p>
+        <p>Firefox uses scrollbar-width: thin and scrollbar-color.</p>
+        <p>Keep scrolling...</p>
+        <p>...to see the full thumb...</p>
+        <p>...rendered in this engine's style.</p>
+        <p>End of scroll box content.</p>
+      </div>
+    </section>
+
+    <!-- 4. Font rendering -->
+    <section class="demo demo--fonts">
+      <h2>4. Font Rendering & Smoothing</h2>
+      <p class="note">macOS WebKit uses subpixel antialiasing. Windows Chromium uses DirectWrite. Firefox has its own stack. Same font, different weight perception.</p>
+      <p class="big-text">The quick brown fox jumps over the lazy dog.</p>
+      <p class="big-text thin">The quick brown fox jumps over the lazy dog.</p>
+      <p class="big-text serif">The quick brown fox jumps over the lazy dog.</p>
+    </section>
+
+    <!-- 5. Smooth scroll behavior -->
+    <section class="demo">
+      <h2>5. Smooth Scroll</h2>
+      <p class="note"><code>scroll-behavior: smooth</code> is set globally on this page. Each engine has its own easing curve and duration — visible when scrolling naturally (mousewheel, keyboard, scrollbar drag). The buttons below jump all windows instantly so the sync stays clean:</p>
+      <div class="scroll-buttons">
+        <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">↑ Scroll to top</button>
+        <button onclick="window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })">↓ Scroll to bottom</button>
+      </div>
+    </section>
+
+    <!-- 6. Flexbox gap edge case -->
+    <section class="demo">
+      <h2>6. Flexbox Gap</h2>
+      <p class="note">Safari only added flex <code>gap</code> support in 14.1 (April 2021). Older WebKit on iOS often shipped without it.</p>
+      <div class="flex-gap">
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 3</div>
+        <div>Item 4</div>
+      </div>
+    </section>
+
+    <!-- 7. CSS Grid subgrid -->
+    <section class="demo">
+      <h2>7. Subgrid</h2>
+      <p class="note">Firefox shipped subgrid in 2019. Chromium didn't until late 2023 (v117). If the inner items align with the outer grid, subgrid works.</p>
+      <div class="subgrid-outer">
+        <div class="subgrid-inner">
+          <span>A</span>
+          <span>B</span>
+          <span>C</span>
+        </div>
+        <div class="subgrid-inner">
+          <span>Longer item D</span>
+          <span>E</span>
+          <span>F</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Aspect ratio + object-fit quirks -->
+    <section class="demo">
+      <h2>8. Aspect Ratio Containers</h2>
+      <p class="note">Modern engines all support <code>aspect-ratio</code> now, but interaction with flex/grid containers still differs subtly.</p>
+      <div class="ratio-row">
+        <div class="ratio ratio-16-9">16:9</div>
+        <div class="ratio ratio-1-1">1:1</div>
+        <div class="ratio ratio-4-3">4:3</div>
+      </div>
+    </section>
+
+    <!-- 9. Sticky positioning inside scroll context -->
+    <section class="demo demo--sticky">
+      <h2>9. Sticky Positioning</h2>
+      <p class="note">Sticky inside flex/grid containers historically rendered differently in WebKit vs Blink. Scroll within this card.</p>
+      <div class="sticky-container">
+        <div class="sticky-header">I should stick to the top while you scroll</div>
+        <div class="sticky-content">
+          <p>Line 1</p><p>Line 2</p><p>Line 3</p><p>Line 4</p>
+          <p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p>
+          <p>Line 9</p><p>Line 10</p><p>Line 11</p><p>Line 12</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. Form validation styling -->
+    <section class="demo">
+      <h2>10. Form Validation UI</h2>
+      <p class="note">Each engine renders <code>:invalid</code> tooltips and required-field bubbles differently. Try submitting empty:</p>
+      <div class="form-demo">
+        <input type="email" placeholder="email@example.com" required />
+        <input type="tel" placeholder="phone" pattern="[0-9]{10}" required />
+        <button onclick="this.parentElement.querySelector('input').reportValidity()">Validate</button>
+      </div>
+    </section>
+
+    <div id="bottom" class="footer">
+      <p>End of showcase. Scroll up — if synced, all windows should follow.</p>
+    </div>
+  </main>
+
+  <script>
+    function scrollInstant(top) {
+      const el = document.documentElement;
+      const prev = el.style.scrollBehavior;
+      el.style.scrollBehavior = 'auto';
+      window.scrollTo({ top });
+      el.style.scrollBehavior = prev;
+    }
+
+    // Engine detection (rough — for display only)
+    const ua = navigator.userAgent;
+    let engine = 'Unknown', version = '';
+    if (ua.includes('Firefox')) {
+      engine = 'Gecko (Firefox)';
+      const m = ua.match(/Firefox\/(\d+)/);
+      if (m) version = ' ' + m[1];
+    } else if (ua.includes('Edg')) {
+      engine = 'Blink (Edge)';
+      const m = ua.match(/Edg\/(\d+)/);
+      if (m) version = ' ' + m[1];
+    } else if (ua.includes('Chrome')) {
+      engine = 'Blink (Chromium)';
+      const m = ua.match(/Chrome\/(\d+)/);
+      if (m) version = ' ' + m[1];
+    } else if (ua.includes('Safari')) {
+      engine = 'WebKit';
+      const m = ua.match(/AppleWebKit\/(\d+)/);
+      if (m) version = ' ' + m[1];
+    }
+    document.getElementById('engine').textContent = engine + version + ' — ' + window.innerWidth + 'x' + window.innerHeight;
+    document.getElementById('ua').textContent = ua;
+  </script>
+</body>
+</html>
