@@ -148,12 +148,13 @@ This starts a local server on port 8080 and launches the 5-window default agains
 
 ### "Cannot find module 'playwright'"
 
-Playwright must be available in the environment where you run the CLI:
+Playwright must be installed in your environment — it's a peer dependency, not bundled:
 
 ```bash
 npm install playwright
-npx playwright install
 ```
+
+Browser binaries are downloaded automatically on first run.
 
 ### Browser windows don't appear (WSL / SSH / CI)
 
