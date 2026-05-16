@@ -2,17 +2,23 @@
 // Suppress deprecation warnings from transitive deps (e.g. util._extend in playwright's tree)
 process.noDeprecation = true;
 import { readFileSync, existsSync } from 'fs';
-import { resolve, extname } from 'path';
-import { pathToFileURL } from 'url';
+import { resolve, extname, dirname, join } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { launch, VIEWPORT_PRESETS } from '../lib/launcher.js';
+import { startServer } from '../lib/server.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const SITE_DIR = join(__dirname, '..', 'site');
 
 const HELP = `
-Usage: cross-engine-preview [options] <url>
+Usage: browserdeck [options] <url>
+       browserdeck --demo
 
 Arguments:
   url                   URL to open in all browser windows
 
 Options:
+  --demo                Launch the built-in cross-engine rendering showcase
   --engines <list>      Comma-separated engines; combined with --viewports as a cross-product
   --viewports <list>    Comma-separated preset names or WxH pairs; combined with --engines
                         Presets: mobile (375x667), tablet (768x1024),
@@ -33,10 +39,11 @@ Config file shape (JS module or JSON):
   viewport can be a preset name, "WxH" string, or { width, height } object
 
 Examples:
-  cross-engine-preview https://example.com
-  cross-engine-preview --engines chromium,webkit --viewports mobile,desktop https://example.com
-  cross-engine-preview --no-sync https://example.com
-  cross-engine-preview --config ./preview.config.js
+  browserdeck https://example.com
+  browserdeck --demo
+  browserdeck --engines chromium,webkit --viewports mobile,desktop https://example.com
+  browserdeck --no-sync https://example.com
+  browserdeck --config ./preview.config.js
 `.trimStart();
 
 function parseArgs(argv) {
@@ -47,6 +54,7 @@ function parseArgs(argv) {
     viewports: null,
     config: null,
     syncScroll: true,
+    demo: false,
     help: false,
   };
 
@@ -54,6 +62,7 @@ function parseArgs(argv) {
     const a = args[i];
     if (a === '--help' || a === '-h') { result.help = true; }
     else if (a === '--no-sync')       { result.syncScroll = false; }
+    else if (a === '--demo')          { result.demo = true; }
     else if (a === '--engines')       { result.engines  = args[++i]; }
     else if (a === '--viewports')     { result.viewports = args[++i]; }
     else if (a === '--config')        { result.config   = args[++i]; }
@@ -119,10 +128,20 @@ async function main() {
     { engine: 'firefox',  viewport: 'desktop',  label: 'Firefox — desktop'           },
   ];
 
-  let syncScroll = true;
+  let syncScroll = flags.syncScroll;
   let url = flags.url;
 
-  if (!flags.syncScroll) syncScroll = false;
+  // --demo: serve the bundled site and launch against it
+  if (flags.demo) {
+    const port = 8080;
+    const server = await startServer(SITE_DIR, port);
+    url = `http://localhost:${port}`;
+    console.log(`Demo server running at ${url}\n`);
+    const resolvedTargets = DEFAULT_TARGETS.map(t => ({ ...t, viewport: parseViewport(t.viewport) }));
+    process.once('exit', () => server.close());
+    await launch({ url, targets: resolvedTargets, syncScroll });
+    return;
+  }
 
   // Config file overrides everything
   if (flags.config) {

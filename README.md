@@ -44,6 +44,9 @@ Firefox mobile is excluded (negligible market share). Scroll any window — all 
 ## Quickstart
 
 ```bash
+# Built-in rendering showcase (no URL needed)
+npx github:emboldagency/browserdeck --demo
+
 # 5-window default (see table above)
 npx github:emboldagency/browserdeck https://yoursite.com
 
@@ -64,7 +67,8 @@ npx github:emboldagency/browserdeck --config preview.config.js
 
 | Flag | Description |
 |------|-------------|
-| `<url>` | URL to open in all windows (required unless set in config) |
+| `<url>` | URL to open in all windows (required unless `--demo` or set in config) |
+| `--demo` | Launch the built-in cross-engine rendering showcase |
 | `--engines <list>` | Comma-separated engines: `chromium`, `firefox`, `webkit` |
 | `--viewports <list>` | Comma-separated preset names or `WxH` pairs |
 | `--config <path>` | JS or JSON config file — overrides all flags |
@@ -137,12 +141,10 @@ browserdeck --config preview.config.js
 The package ships a demo page showcasing cross-engine CSS differences: backdrop filters, native inputs, scrollbars, subgrid, font smoothing, and more.
 
 ```bash
-# Clone the repo, then:
-npm install
-npm run demo
+npx github:emboldagency/browserdeck --demo
 ```
 
-This starts a local server on port 8080 and launches the 5-window default against it.
+No URL needed — starts a local server on port 8080 and launches the 5-window default against it.
 
 ## Troubleshooting
 
