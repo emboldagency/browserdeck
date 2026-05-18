@@ -64,9 +64,21 @@ function parseArgs(argv) {
     if (a === '--help' || a === '-h') { result.help = true; }
     else if (a === '--no-sync')       { result.syncScroll = false; }
     else if (a === '--demo')          { result.demo = true; }
-    else if (a === '--engines')       { result.engines  = args[++i]; }
-    else if (a === '--viewports')     { result.viewports = args[++i]; }
-    else if (a === '--config')        { result.config   = args[++i]; }
+    else if (a === '--engines')  {
+      const v = args[++i];
+      if (!v || v.startsWith('--')) { console.error(`--engines requires a value.\n`); process.exit(1); }
+      result.engines = v;
+    }
+    else if (a === '--viewports') {
+      const v = args[++i];
+      if (!v || v.startsWith('--')) { console.error(`--viewports requires a value.\n`); process.exit(1); }
+      result.viewports = v;
+    }
+    else if (a === '--config') {
+      const v = args[++i];
+      if (!v || v.startsWith('--')) { console.error(`--config requires a path.\n`); process.exit(1); }
+      result.config = v;
+    }
     else if (!a.startsWith('--'))     { result.url = a; }
     else { console.error(`Unknown flag: ${a}\n`); process.exit(1); }
   }
@@ -84,6 +96,15 @@ function parseViewport(val) {
 
   console.error(`Unknown viewport: "${val}". Use a preset name or WxH (e.g. 1440x900).`);
   process.exit(1);
+}
+
+function validateUrl(url) {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    const fixed = `https://${url}`;
+    console.warn(`No scheme provided — assuming ${fixed}\n`);
+    return fixed;
+  }
+  return url;
 }
 
 function buildTargets(engines, viewports) {
@@ -107,7 +128,12 @@ async function loadConfig(configPath) {
 
   const ext = extname(abs).toLowerCase();
   if (ext === '.json') {
-    return JSON.parse(readFileSync(abs, 'utf8'));
+    try {
+      return JSON.parse(readFileSync(abs, 'utf8'));
+    } catch (e) {
+      console.error(`Failed to parse config file "${abs}": ${e.message}`);
+      process.exit(1);
+    }
   }
 
   const mod = await import(pathToFileURL(abs).href);
@@ -166,14 +192,16 @@ async function main() {
         };
       });
       if (!url) { console.error('Error: a URL is required.\n\nRun with --help for usage.\n'); process.exit(1); }
+      url = validateUrl(url);
       await launch({ url, targets, syncScroll });
       return;
     }
 
     if (cfg.engines || cfg.viewports) {
-      const engines   = cfg.engines   ? (Array.isArray(cfg.engines)   ? cfg.engines   : cfg.engines.split(',').map(s => s.trim()))   : ['chromium', 'webkit'];
-      const viewports = cfg.viewports ? (Array.isArray(cfg.viewports) ? cfg.viewports : cfg.viewports.split(',').map(s => s.trim())) : ['desktop'];
+      const engines   = cfg.engines   ? (Array.isArray(cfg.engines)   ? cfg.engines   : cfg.engines.split(',').map(s => s.trim()).filter(Boolean))   : ['chromium', 'webkit'];
+      const viewports = cfg.viewports ? (Array.isArray(cfg.viewports) ? cfg.viewports : cfg.viewports.split(',').map(s => s.trim()).filter(Boolean)) : ['desktop'];
       if (!url) { console.error('Error: a URL is required.\n\nRun with --help for usage.\n'); process.exit(1); }
+      url = validateUrl(url);
       await launch({ url, targets: buildTargets(engines, viewports), syncScroll });
       return;
     }
@@ -181,9 +209,11 @@ async function main() {
 
   // --engines / --viewports flags → cross-product
   if (flags.engines || flags.viewports) {
-    const engines   = flags.engines   ? flags.engines.split(',').map(s => s.trim())   : ['chromium', 'firefox', 'webkit'];
-    const viewports = flags.viewports ? flags.viewports.split(',').map(s => s.trim()) : ['desktop'];
+    const engines   = flags.engines   ? flags.engines.split(',').map(s => s.trim()).filter(Boolean)   : ['chromium', 'firefox', 'webkit'];
+    const viewports = flags.viewports ? flags.viewports.split(',').map(s => s.trim()).filter(Boolean) : ['desktop'];
     const validEngines = ['chromium', 'firefox', 'webkit'];
+    if (engines.length === 0) { console.error('Error: --engines value is empty.\n'); process.exit(1); }
+    if (viewports.length === 0) { console.error('Error: --viewports value is empty.\n'); process.exit(1); }
     for (const e of engines) {
       if (!validEngines.includes(e)) {
         console.error(`Unknown engine: "${e}". Valid: ${validEngines.join(', ')}`);
@@ -191,12 +221,14 @@ async function main() {
       }
     }
     if (!url) { console.error('Error: a URL is required.\n\nRun with --help for usage.\n'); process.exit(1); }
+    url = validateUrl(url);
     await launch({ url, targets: buildTargets(engines, viewports), syncScroll });
     return;
   }
 
   // No flags — use curated defaults
   if (!url) { console.error('Error: a URL is required.\n\nRun with --help for usage.\n'); process.exit(1); }
+  url = validateUrl(url);
   const resolvedTargets = DEFAULT_TARGETS.map(t => ({ ...t, viewport: parseViewport(t.viewport) }));
   await launch({ url, targets: resolvedTargets, syncScroll });
 }
