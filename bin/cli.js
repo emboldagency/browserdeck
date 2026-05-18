@@ -9,6 +9,7 @@ import { startServer } from '../lib/server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SITE_DIR = join(__dirname, '..', 'site');
+const IS_LINUX = process.platform === 'linux';
 
 const HELP = `
 Usage: browserdeck [options] <url>
@@ -120,11 +121,15 @@ async function main() {
 
   // When --engines/--viewports are not provided, use explicit default targets
   // rather than a cross-product (Firefox desktop only, not mobile).
+  // WebKit requires GTK3+ system libraries that are rarely present on Linux —
+  // skip it from defaults rather than crashing. Users can still pass --engines explicitly.
   const DEFAULT_TARGETS = [
     { engine: 'chromium', viewport: 'mobile',   label: 'Chrome — mobile (Android)'  },
     { engine: 'chromium', viewport: 'desktop',  label: 'Chrome — desktop'            },
-    { engine: 'webkit',   viewport: 'mobile',   label: 'WebKit — mobile (iOS)'       },
-    { engine: 'webkit',   viewport: 'desktop',  label: 'WebKit — desktop (Safari)'   },
+    ...(!IS_LINUX ? [
+      { engine: 'webkit',   viewport: 'mobile',   label: 'WebKit — mobile (iOS)'       },
+      { engine: 'webkit',   viewport: 'desktop',  label: 'WebKit — desktop (Safari)'   },
+    ] : []),
     { engine: 'firefox',  viewport: 'desktop',  label: 'Firefox — desktop'           },
   ];
 
