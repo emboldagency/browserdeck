@@ -37,11 +37,10 @@
     "sync": "node bin/cli.js",
     "demo": "concurrently --kill-others \"npm run serve\" \"npx --yes wait-on http://localhost:8080 && node bin/cli.js http://localhost:8080\""
   },
-  "peerDependencies": {
-    "playwright": ">=1.40.0"
+  "dependencies": {
+    "playwright": "^1.60.0"
   },
   "devDependencies": {
-    "concurrently": "^8.0.0",
-    "playwright": "^1.60.0"
+    "concurrently": "^8.0.0"
   }
 }
