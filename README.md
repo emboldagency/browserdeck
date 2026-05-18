@@ -2,28 +2,19 @@
 
 Open any URL side-by-side in Chromium, Firefox, and WebKit — at multiple viewport sizes, with scroll positions synced across all windows. Spot rendering differences without switching browsers manually.
 
-```bash
-npx github:emboldagency/browserdeck https://yoursite.com
-```
-
-## Requirements
-
-- **Node.js ≥ 18**
-- **Playwright** installed in your environment (`npm install playwright`)
-
 ## Setup
 
 ```bash
-npm install playwright
-npx github:emboldagency/browserdeck https://yoursite.com
+npm install -g github:emboldagency/browserdeck
 ```
 
-Browser binaries (~300 MB) are downloaded automatically on first run if they're not already present.
+Browser binaries (~300 MB) are downloaded automatically on first run.
 
-Or install globally:
+**Requirements:** Node.js ≥ 18
+
+## Usage
 
 ```bash
-npm install -g github:emboldagency/browserdeck
 browserdeck https://yoursite.com
 ```
 
@@ -45,22 +36,22 @@ Firefox mobile is excluded (negligible market share). Scroll any window — all 
 
 ```bash
 # Built-in rendering showcase (no URL needed)
-npx github:emboldagency/browserdeck --demo
+browserdeck --demo
 
 # 5-window default (see table above)
-npx github:emboldagency/browserdeck https://yoursite.com
+browserdeck https://yoursite.com
 
 # Chromium + WebKit, mobile only
-npx github:emboldagency/browserdeck --engines chromium,webkit --viewports mobile https://yoursite.com
+browserdeck --engines chromium,webkit --viewports mobile https://yoursite.com
 
 # All three engines at two viewport sizes (6 windows)
-npx github:emboldagency/browserdeck --engines chromium,firefox,webkit --viewports mobile,desktop https://yoursite.com
+browserdeck --engines chromium,firefox,webkit --viewports mobile,desktop https://yoursite.com
 
 # Disable scroll sync
-npx github:emboldagency/browserdeck --no-sync https://yoursite.com
+browserdeck --no-sync https://yoursite.com
 
 # Use a config file
-npx github:emboldagency/browserdeck --config preview.config.js
+browserdeck --config preview.config.js
 ```
 
 ## CLI Flags
@@ -141,22 +132,20 @@ browserdeck --config preview.config.js
 The package ships a demo page showcasing cross-engine CSS differences: backdrop filters, native inputs, scrollbars, subgrid, font smoothing, and more.
 
 ```bash
-npx github:emboldagency/browserdeck --demo
+browserdeck --demo
 ```
 
 No URL needed — starts a local server on port 8080 and launches the 5-window default against it.
 
-## Troubleshooting
-
-### "Cannot find module 'playwright'"
-
-Playwright must be installed in your environment — it's a peer dependency, not bundled:
+## Try without installing
 
 ```bash
-npm install playwright
+npx --yes github:emboldagency/browserdeck https://yoursite.com
 ```
 
-Browser binaries are downloaded automatically on first run.
+The `--yes` skips npm's install confirmation prompt. After the first run the package is cached, so subsequent `npx` calls won't need it.
+
+## Troubleshooting
 
 ### Browser windows don't appear (WSL / SSH / CI)
 
